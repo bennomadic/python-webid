@@ -23,9 +23,8 @@ and client ssl authentication following the WebID spec',
 """
 
 packages = find_packages('src')
-print 'packages', packages
 setup(
-    name='django_webid.provider',
+    name='python-webid',
     package_dir={'': 'src'},
     packages=packages,
     #include_package_data=True,
@@ -40,9 +39,11 @@ setup(
     author_email='bennomadic at gmail dot com',
     download_url='https://github.com/bennomadic/python-webid.git',
     #url=...
+    install_requires=['M2Crypto>=0.20.2', 'rdflib>=3.2.0-RC', 'rdfextras',
+        'requests', 'html5lib'],
+    #test_requires=[],
     classifiers=[
         'Development Status :: 3 - Alpha',
-        #'Environment :: Web Environment',
         'Intended Audience :: Developers',
         'License :: OSI Approved :: GPL License',
         'Operating System :: OS Independent',
