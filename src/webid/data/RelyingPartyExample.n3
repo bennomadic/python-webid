@@ -1,0 +1,271 @@
+﻿@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
+@prefix cert: <http://www.w3.org/ns/auth/cert#> .
+@prefix rsa: <http://www.w3.org/ns/auth/rsa#> .
+@prefix dct: <http://purl.org/dc/terms/> .
+@prefix earl: <http://www.w3.org/ns/earl#> .
+@prefix log: <http://www.w3.org/2000/10/swap/log#> .
+@prefix owl: <http://www.w3.org/2002/07/owl#> .
+@prefix wit: <http://www.w3.org/2005/Incubator/webid/earl/RelyingParty#> .
+
+
+_:certificate a cert:Certificate;
+    rdfs:comment "The certificate containing the claims and for which the private key was verified";
+	cert:base64der "MIIMIICMjCCAZugAwIBAgIGATJ8skgWMA0GCSqGSIb3DQEBCwUAMA0xCz...A";
+	cert:principal_key _:publicKey;
+    log:semantics [ log:includes _:certWebIDClaim_1 ] .
+
+# Native SAN string. Could contain more than one URI!
+_:certificateSAN
+	owl:sameAs "http://example.tld/card#me".
+
+_:verificationTimestamp
+	owl:sameAs "2011-09-22T22:10:00.000Z"^^<http://www.w3.org/2001/XMLSchema#dateTime>.
+
+_:publicKey a rsa:RSAPublicKey;
+	rsa:modulus "a...b"^^cert:hex;
+	rsa:public_exponent "65537"^^cert:int.
+
+_:certWebIDClaim_1 a wit:WebIDClaim;
+	log:n3String """
+      @prefix cert: <http://www.w3.org/ns/auth/cert#> .
+      @prefix rsa: <http://www.w3.org/ns/auth/rsa#> .
+
+      [] a <http://www.w3.org/ns/auth/rsa#RSAPublicKey> ;
+         cert:identity <http://example.tld/card#me>;
+         rsa:modulus "..."^^cert:hex
+    """ .
+
+_:certWebIDClaim_2 a wit:WebIDClaim;
+	log:n3String """
+      @prefix cert: <http://www.w3.org/ns/auth/cert#> .
+      @prefix rsa: <http://www.w3.org/ns/auth/rsa#> .
+
+      [] a <http://www.w3.org/ns/auth/rsa#RSAPublicKey> ;
+         cert:identity <http://example.tld/card#me>;
+         rsa:modulus "..."^^cert:hex;
+         rsa:public_exponent "..."^^cert:int .
+    """ .
+
+# NOTE the above two ways of writing things can be heavy since the modulus can be very large, 
+# and gets repeated for each graph. Since we are only interested in the public key we could 
+# extract that with the following two relations
+
+_:certWebIDClaim_1 a wit:WebIDClaim ;
+    wit:claimedKey _:publicKey;
+    wit:claimedIdentity  "http://example.tld/card#me"^^xsd:anyURI . #avoid the reference, since otherwise an inferencing engine could substitute this URL with another one, if they were found to owl:sameAs each other
+
+# but the above will only save space if there is a lot more than one WebID per certificate, and in the case of the profiles, each public key should be different, so there is less saving there. So perhaps a case of pre-mature optimization.
+
+
+# Reduced profile graph: the full information relevant to these tests about a particular key
+# we can imagine having two keys in the profile
+
+<http://example.tld/card#me> log:semantics [ log:includes _:profilePubkey1Graph, _:profilePubkey2Graph ] .
+
+_:profilePubkey1Graph
+	log:n3String """
+       @prefix cert: <http://www.w3.org/ns/auth/cert#> .
+       @prefix rsa: <http://www.w3.org/ns/auth/rsa#> .
+
+       [] a <http://www.w3.org/ns/auth/rsa#RSAPublicKey> ;
+          cert:identity <mailto:joe@smith.example>;
+          rsa:modulus "..."^^cert:hex;
+          rsa:public_exponent "..."^^cert:int .
+   """ .
+
+_:profilePubkey2Graph
+	owl:sameAs "[] a <http://www.w3.org/ns/auth/rsa#RSAPublicKey> ;....."^^log:parsedAsN3.
+
+_:modulus
+	owl:sameAs "a...b"^^cert:hex.
+	
+_:publicExponent
+	owl:sameAs "65537"^^cert:int.
+
+
+# Did the client provide a X509 certificate?
+[] a earl:Assertion;
+	earl:test wit:certificateProvided;
+#   earl:subject -> there can't be an earl subject here, because then the test would be verified in its own desciption. In any case there is no way at this point of referring to the subject.
+	earl:result [ a earl:TestResult;
+		dct:description "Certificate provided";
+		earl:outcome earl:passed;
+	    earl:pointer _:certificate;
+		] .
+
+# Does the client certificate contain a subject alternative name?
+# note: it should perhaps contain 2, just to help make clear that we are not only requiring https
+# the other SAN should be an e-mail address.
+[] a earl:Assertion;
+	earl:subject _:certificate;
+	earl:test wit:certificateProvidedSAN;
+	earl:result [ a earl:TestResult;
+		dct:description "";
+		earl:outcome earl:passed;
+		earl:pointer "http://example.tld/card#me"^^xsd:anyUri, "mailto:joe@smith.example"^^xsd:anyUri ] . 
+
+# Is the current timestamp between begin and end date of the certificate?
+[] a earl:Assertion;
+	earl:subject _:certificate ;
+	earl:test wit:certificateDateOk ;
+	earl:result [ a earl:TestResult;
+		dct:description "";
+		earl:outcome earl:passed;
+		earl:pointer _:verificationTimestamp ] .
+
+# Could the public key be recognised (is the algorithm known, is it well formed, etc...)?
+# The other question is: is this a public key we know how to parse in rdf. So we don't yet have ontologies 
+# for DSA. We may later, but some implementations may not at that point know how to.
+[] a earl:Assertion;
+	earl:subject _:certificate;
+	earl:test wit:certificatePubkeyRecognised;
+	earl:result [ a earl:TestResult;
+		dct:description "";
+		earl:outcome earl:passed;
+		earl:pointer _:publicKey ] .
+
+# Does the certificate contain no unnecessary critical extensions?
+[] a earl:Assertion;
+	earl:subject _:certificate;
+	earl:test wit:certificateCriticalExtensionsOk;
+	earl:result [ a earl:TestResult;
+		dct:description "";
+		earl:outcome earl:passed;
+		] . # the earl pointer here could be used to point to the name of the critical extension used.
+
+# Does the certificate fulfill all requirements for a WebID certificate?
+[] a earl:Assertion;
+	earl:subject _:certificate ;
+	earl:test wit:certificateOk ;
+	earl:result [ a earl:TestResult;
+		dct:description "";
+		earl:outcome earl:passed;
+		] . #the pointer here would point to some part of the certificate that was wrong, or perhaps it should point to the  testresult that invalidated it?
+
+# Is the WebID Profile accessible and downloadable?
+[] a earl:Assertion;
+	earl:subject <http://example.tld/card#me>; #note: we should put a demo profile up at ./card with an xml version ./card.rdf and an n3 version ./card.n3 for example, so here we are speaking about a particular version of the card. 
+	earl:test wit:profileGet;
+	earl:result [ a earl:TestResult;
+		dct:description "";
+		earl:outcome earl:passed;
+		earl:pointer <http://example.tld/card.n3> ] . #is this a good pointer? Well if we received the n3 representation, then yes, this is pointing more precisely. 
+
+# Does the profile contain only well formed keys for that WebID?
+[] a earl:Assertion;
+	earl:subject  <http://example.tld/card.n3>; # I think we maintain the name of the document, or we speak of a representation. Ie, now we are speaking about a particular string, with a particular semantics. Putting the whole document in the report may be a bit heavy, so it's not required. Perhaps there should be a link to it. todiscuss
+	earl:test wit:profileWellFormed;
+	earl:result [ a earl:TestResult;
+		dct:description "";
+		earl:outcome earl:passed;
+		earl:pointer _:profilePubkey1Graph ].
+
+# Does the public key contain only one modulus?
+[] a earl:Assertion;
+	earl:subject _:profilePubkey1Graph; #agree it makes sense here to have the minigraph as subject
+	earl:test wit:pubkeyRSAModulusFunctional;
+	earl:result [ a earl:TestResult;
+		dct:description "";
+		earl:outcome earl:passed;
+#		earl:pointer _:modulus
+# At this point we don't know if we have a literal number. We could point to:
+#  - an other minigraph, the same way we do it for the public key
+#  - point to statements using rdf:subject, rdf:predicate, ...
+	]. 
+
+# Is the RSA modulus a literal number?
+# btw, failure here is not necessarily a deadly problem - as long as we allow the old notation.
+[] a earl:Assertion;
+	earl:subject _:profilePubkey1Graph;
+	earl:test wit:pubkeyRSAModulusLiteral;
+	earl:result [ a earl:TestResult;
+		dct:description "";
+		earl:outcome earl:passed;
+		earl:pointer _:modulus ] .
+
+# Is the RSA modulus well formed?
+[] a earl:Assertion;
+	earl:subject _:profilePubkey1Graph;
+	earl:test wit:pubkeyRSAModulus;
+	earl:result [ a earl:TestResult;
+		dct:description "";
+		earl:outcome earl:passed;
+		earl:pointer _:modulus ] .
+
+# Does the public key contain only one public exponent?
+[] a earl:Assertion;
+	earl:subject _:profilePubkey1Graph;
+	earl:test wit:pubkeyRSAExponentFunctional;
+	earl:result [ a earl:TestResult;
+		dct:description "";
+		earl:outcome earl:passed;
+		earl:pointer _:publicExponent ] . # if there is more than one, then two pointers would make sense.
+
+# Is the RSA public exponent a literal number?
+[] a earl:Assertion;
+	earl:subject _:profilePubkey1Graph;
+	earl:test wit:pubkeyRSAExponentLiteral;
+	earl:result [ a earl:TestResult;
+		dct:description "";
+		earl:outcome earl:passed;
+		earl:pointer _:publicExponent ] .
+
+# Is the RSA public exponent well formed?
+[] a earl:Assertion;
+	earl:subject _:profilePubkey1Graph;
+	earl:test wit:pubkeyRSAExponent;
+	earl:result [ a earl:TestResult;
+		dct:description "";
+		earl:outcome earl:passed;
+		earl:pointer _:publicExponent ] .
+
+# Is the public key well formed?
+#  The reduced profile contains only the public key.
+[] a earl:Assertion;
+	earl:subject _:profilePubkey1Graph;
+	earl:test wit:profileWellFormedPubkey;
+	earl:result [ a earl:TestResult;
+		dct:description "";
+		earl:outcome earl:passed;
+		earl:pointer _:profilePubkey1Graph ] .
+
+# Does the profile contain only well formed keys for that WebID?
+[] a earl:Assertion;
+	earl:subject _:profilePubkey1Graph;
+	earl:test wit:profileAllKeysWellFormed;
+	earl:result [ a earl:TestResult;
+		dct:description "";
+		earl:outcome earl:passed;
+		earl:pointer _:profilePubkey1Graph ] .
+
+# Does the profile fulfill all requirements for WebID authentication?
+[] a earl:Assertion;
+	earl:subject  <http://example.tld/card.n3>;
+	earl:test wit:profileOk;
+	earl:result [ a earl:TestResult;
+		dct:description "";
+		earl:outcome earl:passed;
+		earl:pointer <http://example.tld/card#me> ]. #in particular with regard to this webid.
+
+# Could the particular WebID claim be verified?
+# TODO: How should we use the earl:pointer in this test case?
+[] a earl:Assertion;
+	earl:subject _:certWebIDClaim_1;
+	earl:test wit:webidClaim ;
+	earl:result [ a earl:TestResult;
+		dct:description "";
+		earl:outcome earl:passed ] . # does a pointer here make sense ?
+
+# Could at least one WebID claim be verified?
+# TODO: How should we use the earl:pointer in this test case?
+# TODO: Can we use multiple earl:subject properties? 
+#       bblfish: I don't think so. In the definition of subject is says "the subject". But could be an oversight.
+[] a earl:Assertion;
+	earl:subject _:certificate ;
+	earl:test wit:webidAuthentication ;
+	earl:result [ a earl:TestResult;
+		dct:description "";
+		earl:outcome earl:passed;
+		earl:pointer _:certWebIDClaim_1 ] . #points to the WebIDClaims that were verfied
+
