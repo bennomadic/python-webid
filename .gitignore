@@ -19,4 +19,6 @@ lib
 parts
 project/media/uploads
 tmp
-examples/example_webid_provider/settings_local.py
+_templates
+_static
+_build
