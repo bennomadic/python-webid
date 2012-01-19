@@ -48,8 +48,6 @@ setup(
         'License :: OSI Approved :: GPL License',
         'Operating System :: OS Independent',
         'Programming Language :: Python',
-        'Programming Language :: JavaScript',
-        'Framework :: Django',
         "Topic :: Internet :: WWW/HTTP",
         "Topic :: Software Development :: Libraries :: Python Modules",
     ],
