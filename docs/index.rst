@@ -6,18 +6,22 @@
 Welcome to python-webid's documentation!
 ========================================
 
-**python-webid** is an *early-alpha* implementing  `WebID <http://www.w3.org/2005/Incubator/webid/spec/>`_ 
+**python-webid** is an *early-alpha* implementation of the  `WebID <http://www.w3.org/2005/Incubator/webid/spec/>`_ 
 Identification and Discovery protocol.
 
 Currently it consists only of a validator and a (very simple, really) client.
 
 Getting Started
 ===============
+
+  git clone git://github.com/bennomadic/python-webid.git
+
 **TBD**
-(github, pypi...)
+(setup install, pypi...)
 
 WebIDValidator
 ==============
+
 The validator, besides checking if a given client WebID certificate matches the conditions for allowing a 
 WebID authentication, returns a set of result objects that can be used to generate a spec-compliance report.
 
@@ -40,7 +44,9 @@ To use the validator, you have to initialize it passing a base64 encoded certifi
   """
 
   webidval = WebIDValidator(certstr=certstr)
-  webidval.validate()
+  validated, data = validator.validate() 
+
+where *validated* is a bool indicating whether the authentication was successful or not.
 
 Not very polished yet... but you can inspect the results for the passed checks (by execution order) in::
 
