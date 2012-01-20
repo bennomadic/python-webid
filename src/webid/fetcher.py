@@ -41,6 +41,8 @@ class WebIDLoader(object):
                 headers={"accept": "application/xhtml+xml"})
         self.rcontent = r.content
         self.rheaders = r.headers
+        self.rstatus_code = r.status_code
+        self.ok = r.ok
 
     def parse(self):
         self.graph = rdflib.ConjunctiveGraph()

@@ -237,6 +237,7 @@ class __certificateOk(WebIDChecks):
 class __profileGet(WebIDChecks):
     order = 7
     subject = "profile"
+    details = "rstatus"
     foreach = ("uri",)
 
 

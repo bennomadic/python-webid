@@ -72,6 +72,8 @@ class WebIDValidator(object):
     Has pointers to the tests passed, which in turn have
     pointers to results.
     """
+    #XXX we could pass also a value for the RAISE_EXCEPTIONS value
+    #XXX it will be useful for testing.
 
     def __init__(self, *args, **kwargs):
 
@@ -113,11 +115,11 @@ class WebIDValidator(object):
     def all_profiles(self):
         return self.profiles.values()
 
-    @property
-    def all_webidkeys(self):
-        #XXX we could hijack here the uuid of the
-        #webidkey that matches the cert key
-        return self.webidkeys.values()
+    #@property
+    #def all_webidkeys(self):
+        ##XXX we could hijack here the uuid of the
+        ##webidkey that matches the cert key
+        #return self.webidkeys.values()
 
     # other idea would be:
     # property: matched_pubkey, and represent as
@@ -232,6 +234,12 @@ class WebIDValidator(object):
         widprofile = self.profiles.get(uri, None)
         if widprofile:
             return widprofile.rawprofile
+
+    def get_testinfo_rstatus(self, **kwargs):
+        uri = kwargs.get('uri', None)
+        widprofile = self.profiles.get(uri, None)
+        if widprofile:
+            return "response status code: %s" % widprofile.rstatus_code
 
     def add_test_info(self, field=None, result=None, spec=None, **kwargs):
         """
@@ -452,6 +460,8 @@ class WebIDValidator(object):
             webidprofile = WebIDLoader(uri)
             webidprofile.get()
             self.profiles[uri] = webidprofile
+            if not webidprofile.ok:
+                return False
         except:
             raise  # DEBUG
             #return False
@@ -461,9 +471,11 @@ class WebIDValidator(object):
         uri = kwargs.get('uri', None)
         #print 'checking ------ profileWellFormed'
         try:
-            profile = self.profiles[uri]
-            profile.parse()
-            self._extract_webid_credentials(profile.graph, uri)
+            webidprofile = self.profiles[uri]
+            if not webidprofile.ok:
+                return False
+            webidprofile.parse()
+            self._extract_webid_credentials(webidprofile.graph, uri)
             return True
         except:
             raise
