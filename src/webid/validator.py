@@ -145,37 +145,35 @@ class WebIDValidator(object):
         uri = kwargs.get("uri", None)
         pubkey = kwargs.get("pubkey", None)
 
-        print '----------checking composite %s' % test.name
+        #print '----------checking composite %s' % test.name
 
         spec = self.get_spec(test.name)
         methods = [self.get_spec(name) for name in spec.parts if \
                 getattr(self.get_spec(name), 'mandatory', True)]
 
-        all_methods = [self.get_spec(name) for name in spec.parts]
-        print 'all_methods', all_methods
+        #all_methods = [self.get_spec(name) for name in spec.parts]
+        #print 'all_methods', all_methods
 
         results = []
         for m in methods:
             for r in m.results:
                 if uri and pubkey:
-                    print 'uri + pubkey'
+                    #print 'uri + pubkey'
                     if r.pubkey == pubkey and r.uri == uri:
                         results.append(r)
 
                 if uri and not pubkey:
-                    print 'uri'
+                    #print 'uri'
                     if r.uri == uri:
                         results.append(r)
 
                 if not uri and not pubkey:
-                    print 'nor uri nor pk'
+                    #print 'nor uri nor pk'
                     results.append(r)
 
         individual_tests = [r.passed for r in results]
-        print individual_tests
-
-        result = all(individual_tests)
-        return result
+        #print individual_tests
+        return all(individual_tests)
 
     # methods to get pointers / subjects on test results
 
@@ -229,9 +227,8 @@ class WebIDValidator(object):
         (and headers and so on for proper serialization using
         rdf http voc)
         """
-        #FIXME BROKEN
         uri = kwargs.get('uri', None)
-        print('getting testinfo:profile for uri %s' % uri)
+        #print('getting testinfo:profile for uri %s' % uri)
         widprofile = self.profiles.get(uri, None)
         if widprofile:
             return widprofile.rawprofile
@@ -371,7 +368,7 @@ class WebIDValidator(object):
         #XXX fix this
         #At least one of the final reqs is done...
         if not hasattr(self.testbed.tests[-1], 'results'):
-            print 'no results on last test... :('
+            #print 'no results on last test... :('
             validated = False
         else:
             if len(self.testbed.tests[-1].results) == 0:
@@ -462,7 +459,7 @@ class WebIDValidator(object):
 
     def check_profileWellFormed(self, **kwargs):
         uri = kwargs.get('uri', None)
-        print 'checking ------ profileWellFormed'
+        #print 'checking ------ profileWellFormed'
         try:
             profile = self.profiles[uri]
             profile.parse()

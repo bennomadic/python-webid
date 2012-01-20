@@ -49,13 +49,13 @@ class Parser(object):
         If not URI is given, it will fetch it from
         http://www.w3.org/2005/Incubator/webid/earl/RelyingParty.n3'
         """
-        print 'parsing uri %s' % URI
+        #print 'parsing uri %s' % URI
         self._get_webid_earl(download=True, URI=URI)
 
     def _get_webid_earl(self, download=False, URI=None):
         if download:
             logger.debug('downloading spec!')
-            print('downloading spec!')
+            #print('downloading spec!')
             URI = 'http://www.w3.org/2005/Incubator/webid/earl/RelyingParty.n3'
             r = requests.get(URI)
             _file = StringIO.StringIO(r.content)
@@ -88,7 +88,9 @@ class Parser(object):
                             o = URIRef(o.replace(OLD, NEW))
                         context.add((s, p, o))
                 except Exception, e:
-                    print e
+                    #print e
+                    raise e
+
 
     def _get_testcases(self):
         testcases = self.g.query(TESTCASES)
