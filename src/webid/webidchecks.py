@@ -208,6 +208,7 @@ class __certificateProvidedSAN(WebIDChecks):
     order = 2
     subject = "cert"
     pointer = "subjectAltName"
+    details = "subjectAltName"
 
 
 class __certificateDateOk(WebIDChecks):
