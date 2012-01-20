@@ -173,7 +173,10 @@ class WebIDValidator(object):
                     #print 'nor uri nor pk'
                     results.append(r)
 
-        individual_tests = [r.passed for r in results]
+        if results:
+            individual_tests = [r.passed for r in results]
+        else:
+            individual_tests = [False]
         #print individual_tests
         return all(individual_tests)
 
