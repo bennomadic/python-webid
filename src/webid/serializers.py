@@ -1,5 +1,9 @@
 import uuid
-from collections import namedtuple
+try:
+    from collections import namedtuple
+except ImportError:
+    # python2.5 backport
+    from xcollections import namedtuple
 from constants import PUBKEY_RDF
 
 """
