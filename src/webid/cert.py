@@ -65,6 +65,8 @@ class Cert(Id):
             self.get_mod() is not None) else False
 
     def check_date_Ok(self):
+        if not self.x509:
+            return False
         nb = self.x509.get_not_before().get_datetime()
         na = self.x509.get_not_after().get_datetime()
         tz = na.tzinfo
@@ -72,12 +74,16 @@ class Cert(Id):
         return True if ((now > nb) and (now < na)) else False
 
     def check_days_to_expire(self):
+        if not self.x509:
+            return False
         na = self.x509.get_not_after().get_datetime()
         tz = na.tzinfo
         now = datetime.now(tz)
         return (na - now).days
 
     def has_other_critical_extensions(self):
+        if not self.x509:
+            return False
         ext_count = self.x509.get_ext_count()
         for i in range(ext_count):
             ext = self.x509.get_ext_at(i)
