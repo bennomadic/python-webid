@@ -54,8 +54,8 @@ class WebIDLoader(object):
         except SAXParseException:
             #malformed rdfa
             raise
-        except Exception as e:
-            raise e
+        except Exception:
+            raise
             #return False
             #ConnectionError (we should put some "reason" field on the test@!!
 
