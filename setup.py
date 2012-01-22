@@ -17,10 +17,7 @@ VERSION = __version__
 setup_root = os.path.dirname(__file__)
 sys.path.insert(0, os.path.join(setup_root, "src"))
 
-long_description = """
-A python lib implementing server-side validation \
-and client ssl authentication following the WebID spec',
-"""
+long_description = """A python lib implementing server-side validation and client ssl authentication following the WebID spec"""
 
 packages = find_packages('src')
 setup(
@@ -42,6 +39,7 @@ setup(
     install_requires=['M2Crypto>=0.20.2', 'rdflib>=3.2.0-RC', 'rdfextras',
         'requests', 'html5lib'],
     #test_requires=[],
+    platforms=['any'],
     classifiers=[
         'Development Status :: 3 - Alpha',
         'Intended Audience :: Developers',
