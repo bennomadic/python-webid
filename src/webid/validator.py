@@ -427,14 +427,12 @@ class WebIDValidator(object):
         if not self.cert:
             return False
         altName = self.cert.get_subjectAltName()
+        if not altName:
+            return False
         uris = set(re.findall('URI:([^, ]+)', altName))
         self.URIS = uris
-
-        #XXX this should be set at the end of the tests, it's
-        #what we pass to the auth backend. but i'm in a hurry tonite :P
-        #XXX FIXME
-        #self.validatedURI = tuple(uris)[0]
         self.validatedURI = None
+        # return False if no URIS???
         return True if altName else False
 
     def check_certificateDateOk(self, **kwargs):
