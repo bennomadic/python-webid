@@ -423,7 +423,9 @@ class WebIDValidator(object):
         set.
         """
         #XXX are we assuming that if no URIs in SAN
-        #this test must fail??? hehe, that's kingsley trolling
+        #this test must fail???
+        if not self.cert:
+            return False
         altName = self.cert.get_subjectAltName()
         uris = set(re.findall('URI:([^, ]+)', altName))
         self.URIS = uris
