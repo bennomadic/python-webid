@@ -23,6 +23,7 @@ class WebIDChecks(object):
         self.validatedURI = None
         #change to tuple
         self.parts = list()
+        self.tests = list()
         self.earltests = set([])
         #still have to be used
         #(date of voc fetched)
