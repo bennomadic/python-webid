@@ -51,7 +51,7 @@ class WebIDLoader(object):
             self.graph.load(_f, format=self.format)
             self.rawprofile = Profile(
                     self.graph.serialize(format="pretty-xml"))
-        except SAXParseException as e:
+        except SAXParseException:
             #malformed rdfa
             raise
         except Exception as e:
