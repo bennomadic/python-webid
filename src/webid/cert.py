@@ -7,6 +7,9 @@ from serializers import Id, PublicKey
 
 logger = logging.getLogger()
 
+#XXX get this from settings
+RAISE_CERT_EXCEPTIONS=False
+
 
 class Cert(Id):
     """
@@ -35,8 +38,10 @@ class Cert(Id):
             self.subjectAltName = altName
             return altName
         except:
-            raise
-            return None
+            if RAISE_CERT_EXCEPTIONS:
+                raise
+            else:
+                return None
 
     def get_pubkey(self):
         #XXX clean
