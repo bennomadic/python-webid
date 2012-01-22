@@ -318,17 +318,20 @@ class WebIDValidator(object):
 
         ######################################################
 
-        self.post_check_passed(methodname, passed, test=test)
+        self.post_check_passed(methodname, passed, test=test, uri=uri)
         return passed
 
-    def post_check_passed(self, methodname, passed, test=None):
+    def post_check_passed(self, methodname, passed, test=None, uri=None):
         """
         according to configuration parameter, either log the test
         result or raise an Exception or pass silently.
         """
         if passed is True:
             logger.error("%s passed!" % methodname)
-            if getattr(test, 'final', False) and self.mode == "firstmatch":
+            final = getattr(test, 'final', False)
+            if final and uri is not None:
+                self.validatedURI = uri
+            if final and self.mode == "firstmatch":
                 raise WebIDAuthMatched()
 
         if not passed:
@@ -428,7 +431,8 @@ class WebIDValidator(object):
         #XXX this should be set at the end of the tests, it's
         #what we pass to the auth backend. but i'm in a hurry tonite :P
         #XXX FIXME
-        self.validatedURI = tuple(uris)[0]
+        #self.validatedURI = tuple(uris)[0]
+        self.validatedURI = None
         return True if altName else False
 
     def check_certificateDateOk(self, **kwargs):
