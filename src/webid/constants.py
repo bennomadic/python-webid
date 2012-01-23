@@ -58,12 +58,12 @@ WHERE { ?test rdf:type earl:TestRequirement .
 """
 
 PUBKEY_RDF = """
-<rdf:Description rdf:nodeID="{iduuid}">
+<rdf:Description rdf:nodeID="%(iduuid)s">
   <rdf:type rdf:resource="http://www.w3.org/ns/auth/rsa#RSAPublicKey"/>
   <rsa:modulus rdf:datatype="http://www.w3.org/ns/auth/cert#hex">
-    {mod}</rsa:modulus>
+    %(mod)s</rsa:modulus>
   <rsa:public_exponent
-    rdf:datatype="http://www.w3.org/ns/auth/cert#int">{exp}
+    rdf:datatype="http://www.w3.org/ns/auth/cert#int">%(exp)s
     </rsa:public_exponent>
  </rdf:Description>
 """

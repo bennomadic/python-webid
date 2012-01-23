@@ -36,12 +36,11 @@ PK = namedtuple('PublicKey', ['mod', 'exp'])
 
 class PublicKey(PK, Id):
     def to_rdf(self):
-        iduuid = "{id}-serialized-xml".format(
-                id=self.uuid)
-        return PUBKEY_RDF.format(
-                **{'iduuid': iduuid,
+        iduuid = "%(id)s-serialized-xml" % {id: self.uuid}
+        return PUBKEY_RDF % {
+                'iduuid': iduuid,
                 'mod': self.mod,
-                'exp': self.exp})
+                'exp': self.exp}
 
 
 class Profile(Id):
