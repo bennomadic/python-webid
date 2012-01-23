@@ -5,11 +5,14 @@ import os
 import urllib
 import shutil
 
+from constants import FORMATS
+
 """
 WARNING!!!!
 This is (by now) just some tinkering put together,
 previous to automatize a given WebID cert against different
 Relying Parties. It might OR not might work.
+... but take everything with a pinch of salt.
 """
 
 # TODO: use requests instead of urrlib
@@ -57,16 +60,6 @@ config.read(_default_config)
 #           - crypto implementations
 #           - content-negotiation, available formats etc
 
-#TODO move formats to constants
-#validator fetched might well use it
-formats = {
-        'rdf':  'application/rdf+xml',
-        'turtle': 'text/turtle',
-        'n3': 'text/rdf+n3',
-        'html': 'text/html',
-        'xhtml': 'text/xhtml+xml'
-}
-
 
 def printheaders(headers):
         print
@@ -88,13 +81,13 @@ def do_connection(url, certfile, _format="rdf", onlyhead=False):
     conn.putrequest('GET', path)
 
     # Refactor format into a dict
-    if _format in formats.keys():
-        conn.putheader("Accept", formats[_format])
+    if _format in FORMATS:
+        conn.putheader("Accept", FORMATS[_format])
     conn.endheaders()
     response = conn.getresponse()
 
     if onlyhead:
-        mime = formats[_format]
+        mime = FORMATS[_format]
         rhead = dict(tuple(response.getheaders()))
         ctype = rhead.get('content-type', None)
         if ctype and mime in ctype:
@@ -163,7 +156,7 @@ def try_all_formats():
     #XXX cycle all formats
     cert = get_first_cert()
     for validator_sect in validators:
-        for _format in formats.keys():
+        for _format in FORMATS:
             name, uri = get_validator_details(validator_sect)
             print(">>>>>>>")
             print("Requesting %s [%s]\nwith format %s" % (name,

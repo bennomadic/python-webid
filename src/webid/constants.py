@@ -69,6 +69,15 @@ PUBKEY_RDF = """
 """
 
 
+FORMATS = {
+        'rdf':  'application/rdf+xml',
+        'rdfa': 'application/xhtml+xml',
+        'turtle': 'text/turtle',
+        'n3': 'text/rdf+n3',
+        #'html': 'text/html',
+}
+
+
 ################################################
 # TODO check ASK support in rdflib
 
