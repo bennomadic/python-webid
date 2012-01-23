@@ -36,7 +36,7 @@ PK = namedtuple('PublicKey', ['mod', 'exp'])
 
 class PublicKey(PK, Id):
     def to_rdf(self):
-        iduuid = "%(id)s-serialized-xml" % {id: self.uuid}
+        iduuid = "%(id)s-serialized-xml" % {'id': self.uuid}
         return PUBKEY_RDF % {
                 'iduuid': iduuid,
                 'mod': self.mod,
