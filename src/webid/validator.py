@@ -198,12 +198,16 @@ class WebIDValidator(object):
         """
         returns the cert pubkey.
         """
+        if not self.cert:
+            return None
         return self.cert.pubkey
 
     def get_testinfo_subjectAltName(self, **kwargs):
         """
         returns the cert SAN.
         """
+        if not self.cert:
+            return None
         return self.cert.subjectAltName
 
     def get_testinfo_pubkey(self, **kwargs):
@@ -439,9 +443,13 @@ class WebIDValidator(object):
         """
         returns: bool.
         """
+        if not self.cert:
+            return False
         return self.cert.check_date_Ok()
 
     def check_certificatePubkeyRecognised(self, **kwargs):
+        if not self.cert:
+            return False
         try:
             self.cert.get_pubkey()
             return self.cert.is_pubkey_well_formed
@@ -450,6 +458,8 @@ class WebIDValidator(object):
             #return False
 
     def check_certificateCriticalExtensionsOk(self, **kwargs):
+        if not self.cert:
+            return False
         #we pass the test if the cert has NOT other critical ext
         #it's a warning all the same
         return not self.cert.has_other_critical_extensions()
@@ -459,7 +469,6 @@ class WebIDValidator(object):
         logger.debug("this method should never get executed")
         #By now, this check (and all the other "hasPart" tests
         #should be AND'ing all the sub-tests results.
-        return True
 
     def check_profileGet(self, **kwargs):
         try:
@@ -611,6 +620,8 @@ class WebIDValidator(object):
         the external user.
         XXX might be moved to WebIDAuthenticator
         """
+        if not uri:
+            return None
         graph = self.profiles[uri].graph
         if graph:
             webid_name = {}
