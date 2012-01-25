@@ -132,6 +132,8 @@ class WebIDLoader(object):
         self.rheaders = req.headers
         self.rstatus_code = req.status_code
         ctype = req.headers.get('content-type', None)
+        if ctype:
+            ctype = ctype.split(";")[0]
         self.ctype = ctype
         self.ok = req.ok
         self.format = ctype
@@ -139,15 +141,16 @@ class WebIDLoader(object):
         # the earl validation on webid-auth package.
         self.responses[ctype] = req
 
-    def parse(self):
+    def parse(self, format=None):
         """
         tries to parse the content of the request into
         an rdf graph.
         """
         self.graph = rdflib.ConjunctiveGraph()
+        format = format or self.format
         try:
             _f = StringIO.StringIO(self.rcontent)
-            self.graph.load(_f, format=self.format)
+            self.graph.load(_f, format=format)
             self.rawprofile = Profile(
                     self.graph.serialize(format="pretty-xml"))
             return True
