@@ -586,6 +586,7 @@ class WebIDValidator(object):
             mod_lit = unicode(mod).replace(' ', '').\
                     replace('\n', '').\
                     replace('"', '').\
+                    replace('\t', '').\
                     encode('ascii', 'ignore').lower()
             exp_int = int(unicode(exp))
             pubkey = PublicKey(mod=mod_lit, exp=exp_int)
