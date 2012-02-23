@@ -22,3 +22,5 @@ tmp
 _templates
 _static
 _build
+local
+local/*
