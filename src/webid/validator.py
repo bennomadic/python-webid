@@ -245,8 +245,10 @@ class WebIDValidator(object):
     def get_testinfo_rstatus(self, **kwargs):
         uri = kwargs.get('uri', None)
         widprofile = self.profiles.get(uri, None)
-        if widprofile:
+        if widprofile and hasattr(widprofile, 'rstatus_code'):
             return "response status code: %s" % widprofile.rstatus_code
+        else:
+            return None
 
     def add_test_info(self, field=None, result=None, spec=None, **kwargs):
         """
