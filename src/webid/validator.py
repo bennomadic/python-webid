@@ -10,7 +10,7 @@ from serializers import Id, PublicKey, WebIDClaim
 from cert import Cert
 from fetcher import WebIDLoader
 
-logger = logging.getLogger()
+logger = logging.getLogger(name=__name__)
 
 
 WEBID_RAISE_EXCEPTIONS = False
@@ -297,7 +297,7 @@ class WebIDValidator(object):
             #A requirement test, or another testCase
             # with subparts
             #i.e., profileAllKeysWellFormed (foreach...)
-            logger.error('do_check: composite %s' % test)
+            logger.debug('do_check: composite %s' % test)
             passed = self.check_composite(test, **kwargs)
         else:
             #a simple, atomic TestCase
@@ -333,7 +333,7 @@ class WebIDValidator(object):
         result or raise an Exception or pass silently.
         """
         if passed is True:
-            logger.error("%s passed!" % methodname)
+            logger.info("%s passed!" % methodname)
             final = getattr(test, 'final', False)
             if final and uri is not None:
                 self.validatedURI = uri
@@ -341,7 +341,7 @@ class WebIDValidator(object):
                 raise WebIDAuthMatched()
 
         if not passed:
-            logger.error("%s failed" % methodname)
+            logger.warning("%s failed" % methodname)
             if getattr(test, 'mandatory', False) and self.mode == "strict":
                 raise WebIDAuthStrictFailed()
 
@@ -468,7 +468,7 @@ class WebIDValidator(object):
 
     def check_certificateOk(self, **kwargs):
         #if we have arrived here it's True :)
-        logger.debug("this method should never get executed")
+        logger.warning("this method should never get executed")
         #By now, this check (and all the other "hasPart" tests
         #should be AND'ing all the sub-tests results.
 
@@ -564,7 +564,7 @@ class WebIDValidator(object):
         """
         #XXX we could raise if not webidkeys, or
         #if prev test failed...
-        logger.error('webidAuth method... SHOULD get executed')
+        logger.debug('webidAuth method... SHOULD get executed')
         uri = kwargs.get('uri', None)
         try:
             passed = self._check_credentials(uri=uri)
@@ -578,7 +578,7 @@ class WebIDValidator(object):
     # begin private methods
 
     def _extract_webid_credentials(self, graph, uri):
-        logger.error('>>>>>> loading webid credentials for uri %s' % uri)
+        logger.info('loading webid credentials for uri %s' % uri)
         #XXX this GRAPH also should be a dict by uri
         results = graph.query(constants.WEBID_SPARQL_SIMPLE)
         for result in results:
