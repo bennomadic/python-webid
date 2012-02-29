@@ -605,10 +605,10 @@ class WebIDValidator(object):
         webid pubkeys set.
         """
         uri = kwargs.get('uri', None)
-        logging.error('>>>>>>>>>> matching credentials for uri %s' % uri)
+        logger.debug('>>> matching credentials for uri %s' % uri)
 
         if not self.webidkeys:
-            logging.error("no webid keys :(")
+            logger.error("no webid keys :(")
             #XXX raise???
 
         if self.cert.pubkey in self.webidkeys[uri]:

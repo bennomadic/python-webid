@@ -16,11 +16,11 @@ if rdflib_major_ver == 3:
 from serializers import Profile
 from constants import FORMATS
 
-ch = logging.StreamHandler()
-ch.setLevel(logging.DEBUG)
+#ch = logging.StreamHandler()
+#ch.setLevel(logging.DEBUG)
 logger = logging.getLogger(name=__name__)
-logger.setLevel(logging.DEBUG)
-logger.addHandler(ch)
+#logger.setLevel(logging.DEBUG)
+#logger.addHandler(ch)
 
 
 UNDERSTOOD_FORMATS = ('rdf', 'rdfa')
