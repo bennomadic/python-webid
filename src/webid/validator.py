@@ -346,6 +346,8 @@ class WebIDValidator(object):
                 raise WebIDAuthStrictFailed()
 
             #XXX this should come from settings
+            #XXX or be passed when initializing the object
+
             if not WEBID_RAISE_EXCEPTIONS:
                 pass
             else:
@@ -478,7 +480,7 @@ class WebIDValidator(object):
             webidprofile = WebIDLoader(uri)
             webidprofile.get()
             self.profiles[uri] = webidprofile
-            if not webidprofile.ok:
+            if not getattr(webidprofile, 'ok', None):
                 return False
         except:
             raise  # DEBUG
@@ -490,7 +492,7 @@ class WebIDValidator(object):
         #print 'checking ------ profileWellFormed'
         try:
             webidprofile = self.profiles[uri]
-            if not webidprofile.ok:
+            if not getattr(webidprofile, 'ok', None):
                 return False
             webidprofile.parse()
             self._extract_webid_credentials(webidprofile.graph, uri)
