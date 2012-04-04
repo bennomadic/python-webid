@@ -107,7 +107,7 @@ class WebIDLoader(object):
                 logger.debug('do not understand content-type of response...')
                 self.ok = False
                 #XXX DEBUG
-                #self.req = req
+                self.req = req
 
         else:
             logger.debug('not a valid response.')

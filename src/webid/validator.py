@@ -632,9 +632,12 @@ class WebIDValidator(object):
             webid_name = {}
             res = graph.query(constants.NAME_SPARQL)
             for result in res:
-                uri, name, nick, mbox = result
+                uri, name, nick, mbox,\
+                    givenName, familyName = result
                 webid_name['uri'] = unicode(uri)
                 webid_name['name'] = unicode(name)
                 webid_name['nick'] = unicode(nick)
                 webid_name['mbox'] = unicode(mbox)
+                webid_name['familyName'] = unicode(familyName)
+                webid_name['givenName'] = unicode(givenName)
             self.webid_name = webid_name
