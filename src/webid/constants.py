@@ -14,8 +14,8 @@ PREFIX foaf: <http://xmlns.com/foaf/0.1/>
 PREFIX rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#>
 SELECT ?uri ?name ?nick ?mbox ?givenName ?familyName
 WHERE {
-   ?uri foaf:name ?name .
    OPTIONAL {
+      ?uri foaf:name ?name .
       ?uri foaf:nick ?nick .
       ?uri foaf:mbox ?mbox .
       ?uri foaf:givenName ?givenName .

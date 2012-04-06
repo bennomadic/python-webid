@@ -618,7 +618,8 @@ class WebIDValidator(object):
         else:
             return False
 
-    def _extract_webid_name(self, uri):
+    def _extract_webid_name(self, uri, sparql_query=None,
+            sparql_vars=None):
         """
         returns a sparql query over the profile, containing
         fields useful for building a new local profile for
@@ -630,14 +631,33 @@ class WebIDValidator(object):
         graph = self.profiles[uri].graph
         if graph:
             webid_name = {}
-            res = graph.query(constants.NAME_SPARQL)
+            if sparql_query:
+                query = sparql_query
+            else:
+                query = constants.NAME_SPARQL
+                #XXX get this vars names from
+                #constants too.
+                sparql_vars = ('uri', 'name', 'nick',
+                        'mbox')
+            res = graph.query(query)
+            #XXX FIXME!!!
+            #Check that THE URI IS SAME AS
+            #The URIRef we're handling for our
+            #person...
             for result in res:
-                uri, name, nick, mbox,\
-                    givenName, familyName = result
-                webid_name['uri'] = unicode(uri)
-                webid_name['name'] = unicode(name)
-                webid_name['nick'] = unicode(nick)
-                webid_name['mbox'] = unicode(mbox)
-                webid_name['familyName'] = unicode(familyName)
-                webid_name['givenName'] = unicode(givenName)
+                #uri, name, nick, mbox,\
+                    #givenName, familyName = result
+                for key, value in zip(sparql_vars,
+                        result):
+                    #XXX check for same cardinality!!!
+                    #or raise ImproperlyConfigured
+                    webid_name[key] = unicode(value)
+
+                #webid_name['uri'] = unicode(uri)
+                #webid_name['name'] = unicode(name)
+                #webid_name['nick'] = unicode(nick)
+                #webid_name['mbox'] = unicode(mbox)
+
+                #webid_name['familyName'] = unicode(familyName)
+                #webid_name['givenName'] = unicode(givenName)
             self.webid_name = webid_name
