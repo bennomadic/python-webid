@@ -24,7 +24,7 @@ setup(
     name='python-webid',
     package_dir={'': 'src'},
     packages=packages,
-    #include_package_data=True,
+    include_package_data=True,
     exclude_package_data={
         'requirements': ['%s/*.tar.gz' % VERSION],
     },
@@ -36,7 +36,7 @@ setup(
     author_email='bennomadic at gmail dot com',
     download_url='https://github.com/bennomadic/python-webid.git',
     #url=...
-    install_requires=['M2Crypto>=0.20.2', 'rdflib>=3.2.0-RC', 'rdfextras',
+    install_requires=['M2Crypto>=0.20.2', 'rdflib>=3.2.0', 'rdfextras',
         'requests', 'html5lib'],
     #test_requires=[],
     platforms=['any'],

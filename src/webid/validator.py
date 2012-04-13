@@ -10,7 +10,7 @@ from serializers import Id, PublicKey, WebIDClaim
 from cert import Cert
 from fetcher import WebIDLoader
 
-logger = logging.getLogger()
+logger = logging.getLogger(name=__name__)
 
 
 WEBID_RAISE_EXCEPTIONS = False
@@ -245,8 +245,10 @@ class WebIDValidator(object):
     def get_testinfo_rstatus(self, **kwargs):
         uri = kwargs.get('uri', None)
         widprofile = self.profiles.get(uri, None)
-        if widprofile:
+        if widprofile and hasattr(widprofile, 'rstatus_code'):
             return "response status code: %s" % widprofile.rstatus_code
+        else:
+            return None
 
     def add_test_info(self, field=None, result=None, spec=None, **kwargs):
         """
@@ -295,7 +297,7 @@ class WebIDValidator(object):
             #A requirement test, or another testCase
             # with subparts
             #i.e., profileAllKeysWellFormed (foreach...)
-            logger.error('do_check: composite %s' % test)
+            logger.debug('do_check: composite %s' % test)
             passed = self.check_composite(test, **kwargs)
         else:
             #a simple, atomic TestCase
@@ -331,7 +333,7 @@ class WebIDValidator(object):
         result or raise an Exception or pass silently.
         """
         if passed is True:
-            logger.error("%s passed!" % methodname)
+            logger.info("%s passed!" % methodname)
             final = getattr(test, 'final', False)
             if final and uri is not None:
                 self.validatedURI = uri
@@ -339,11 +341,13 @@ class WebIDValidator(object):
                 raise WebIDAuthMatched()
 
         if not passed:
-            logger.error("%s failed" % methodname)
+            logger.warning("%s failed" % methodname)
             if getattr(test, 'mandatory', False) and self.mode == "strict":
                 raise WebIDAuthStrictFailed()
 
             #XXX this should come from settings
+            #XXX or be passed when initializing the object
+
             if not WEBID_RAISE_EXCEPTIONS:
                 pass
             else:
@@ -466,7 +470,7 @@ class WebIDValidator(object):
 
     def check_certificateOk(self, **kwargs):
         #if we have arrived here it's True :)
-        logger.debug("this method should never get executed")
+        logger.warning("this method should never get executed")
         #By now, this check (and all the other "hasPart" tests
         #should be AND'ing all the sub-tests results.
 
@@ -476,7 +480,7 @@ class WebIDValidator(object):
             webidprofile = WebIDLoader(uri)
             webidprofile.get()
             self.profiles[uri] = webidprofile
-            if not webidprofile.ok:
+            if not getattr(webidprofile, 'ok', None):
                 return False
         except:
             raise  # DEBUG
@@ -488,7 +492,7 @@ class WebIDValidator(object):
         #print 'checking ------ profileWellFormed'
         try:
             webidprofile = self.profiles[uri]
-            if not webidprofile.ok:
+            if not getattr(webidprofile, 'ok', None):
                 return False
             webidprofile.parse()
             self._extract_webid_credentials(webidprofile.graph, uri)
@@ -562,7 +566,7 @@ class WebIDValidator(object):
         """
         #XXX we could raise if not webidkeys, or
         #if prev test failed...
-        logger.error('webidAuth method... SHOULD get executed')
+        logger.debug('webidAuth method... SHOULD get executed')
         uri = kwargs.get('uri', None)
         try:
             passed = self._check_credentials(uri=uri)
@@ -576,7 +580,7 @@ class WebIDValidator(object):
     # begin private methods
 
     def _extract_webid_credentials(self, graph, uri):
-        logger.error('>>>>>> loading webid credentials for uri %s' % uri)
+        logger.info('loading webid credentials for uri %s' % uri)
         #XXX this GRAPH also should be a dict by uri
         results = graph.query(constants.WEBID_SPARQL_SIMPLE)
         for result in results:
@@ -603,10 +607,10 @@ class WebIDValidator(object):
         webid pubkeys set.
         """
         uri = kwargs.get('uri', None)
-        logging.error('>>>>>>>>>> matching credentials for uri %s' % uri)
+        logger.debug('>>> matching credentials for uri %s' % uri)
 
         if not self.webidkeys:
-            logging.error("no webid keys :(")
+            logger.error("no webid keys :(")
             #XXX raise???
 
         if self.cert.pubkey in self.webidkeys[uri]:
@@ -614,7 +618,8 @@ class WebIDValidator(object):
         else:
             return False
 
-    def _extract_webid_name(self, uri):
+    def _extract_webid_name(self, uri, sparql_query=None,
+            sparql_vars=None):
         """
         returns a sparql query over the profile, containing
         fields useful for building a new local profile for
@@ -626,11 +631,33 @@ class WebIDValidator(object):
         graph = self.profiles[uri].graph
         if graph:
             webid_name = {}
-            res = graph.query(constants.NAME_SPARQL)
+            if sparql_query:
+                query = sparql_query
+            else:
+                query = constants.NAME_SPARQL
+                #XXX get this vars names from
+                #constants too.
+                sparql_vars = ('uri', 'name', 'nick',
+                        'mbox')
+            res = graph.query(query)
+            #XXX FIXME!!!
+            #Check that THE URI IS SAME AS
+            #The URIRef we're handling for our
+            #person...
             for result in res:
-                uri, name, nick, mbox = result
-                webid_name['uri'] = unicode(uri)
-                webid_name['name'] = unicode(name)
-                webid_name['nick'] = unicode(nick)
-                webid_name['mbox'] = unicode(mbox)
+                #uri, name, nick, mbox,\
+                    #givenName, familyName = result
+                for key, value in zip(sparql_vars,
+                        result):
+                    #XXX check for same cardinality!!!
+                    #or raise ImproperlyConfigured
+                    webid_name[key] = unicode(value)
+
+                #webid_name['uri'] = unicode(uri)
+                #webid_name['name'] = unicode(name)
+                #webid_name['nick'] = unicode(nick)
+                #webid_name['mbox'] = unicode(mbox)
+
+                #webid_name['familyName'] = unicode(familyName)
+                #webid_name['givenName'] = unicode(givenName)
             self.webid_name = webid_name

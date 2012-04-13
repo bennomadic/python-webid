@@ -18,11 +18,11 @@ def init():
     """
     Initialize a virtualenv in which to run tests against this
     """
-    local("virtualenv .")
+    local("virtualenv --system-site-packages .")
     local("pip install -E . -r ./requirements.pip")
     local("python setup.py sdist")
     local("pip install -E . dist/python-webid-0.1.tar.gz")
-    print(green("[OK] env has been initializated"))
+    print(green("[OK] env has been initialized"))
 
 
 def rebuild():

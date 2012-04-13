@@ -17,13 +17,16 @@ class Cert(Id):
     Has validation methods.
     """
     def __init__(self, certstr, *args, **kwargs):
-        self.x509 = M2Crypto.X509.load_cert_string(certstr)
-        #XXX get a better regexp for this
-        self.b64der = certstr.replace(
-                    '-----BEGIN CERTIFICATE-----', '').\
-                    replace(
-                    '-----END CERTIFICATE-----', '').\
-                    replace('\n', '')
+        try:
+            self.x509 = M2Crypto.X509.load_cert_string(certstr)
+            #XXX get a better regexp for this
+            self.b64der = certstr.replace(
+                        '-----BEGIN CERTIFICATE-----', '').\
+                        replace(
+                        '-----END CERTIFICATE-----', '').\
+                        replace('\n', '')
+        except:
+            self.x509 = None
         self.pubkey = PublicKey(None, None)
         self.subjectAltName = None
         super(Cert, self).__init__(*args, **kwargs)
@@ -45,6 +48,8 @@ class Cert(Id):
 
     def get_pubkey(self):
         #XXX clean
+        if not self.x509:
+            return None
         mm = str(self.x509.get_pubkey().get_modulus().lower())
         _exp = M2Crypto.m2.rsa_get_e(self.x509.get_pubkey().get_rsa().rsa)
         ee = int(''.join(["%2.2d" % ord(x) for x in _exp[-3:]]), 16)

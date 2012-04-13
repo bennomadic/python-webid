@@ -16,11 +16,11 @@ if rdflib_major_ver == 3:
 from serializers import Profile
 from constants import FORMATS
 
-ch = logging.StreamHandler()
-ch.setLevel(logging.DEBUG)
+#ch = logging.StreamHandler()
+#ch.setLevel(logging.DEBUG)
 logger = logging.getLogger(name=__name__)
-logger.setLevel(logging.DEBUG)
-logger.addHandler(ch)
+#logger.setLevel(logging.DEBUG)
+#logger.addHandler(ch)
 
 
 UNDERSTOOD_FORMATS = ('rdf', 'rdfa')
@@ -51,9 +51,8 @@ class WebIDLoader(object):
         self.uri = uri
         if preferred_format:
             self.preferred_format = preferred_format
-        #only rdfa by now...
-        # XXX change this rdfa thing.
-        #self.format = "rdfa"
+        # XXX TODO pass verify option
+        self.verify_server_cert = False
         self.format = None
 
         self.graph = None
@@ -85,10 +84,12 @@ class WebIDLoader(object):
         if accept_header:  # we got a preference on init.
             logger.debug('using preferred format %s' % preffmt)
             req = requests.get(self.uri,
+                verify=self.verify_server_cert,
                 headers={"accept": accept_header})
         else:  # no accept header, go with default preferred fmts.
             logger.debug('using all understood formats')
             req = requests.get(self.uri,
+                verify=self.verify_server_cert,
                 headers={"accept": get_accept_header(UNDERSTOOD_FORMATS)})
         if req.ok:
             logger.debug('successful URI dereference for uri %s' % self.uri)
@@ -106,7 +107,7 @@ class WebIDLoader(object):
                 logger.debug('do not understand content-type of response...')
                 self.ok = False
                 #XXX DEBUG
-                #self.req = req
+                self.req = req
 
         else:
             logger.debug('not a valid response.')
